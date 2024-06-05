@@ -1,2 +1,4 @@
+algoliasearch==3.0.0
 click==8.1.7
 polars==0.20.31
+python-dotenv==1.0.1
