@@ -34,9 +34,9 @@ def for_database(obj: pl.LazyFrame, output: str):
     df = obj.select("id", "name").collect()
 
     if output == "-":
-        print(df.write_csv())
+        print(df.write_csv(quote_style="always"))
     else:
-        df.write_csv(output)
+        df.write_csv(output, quote_style="always")
 
 
 @dataclass
