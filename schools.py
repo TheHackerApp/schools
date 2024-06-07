@@ -35,7 +35,7 @@ def for_database(obj: pl.LazyFrame, output: str):
     """
     df = obj.select("id", "name").collect()
 
-    write_csv(df, output)
+    write_csv(df, output, header=False)
 
 
 @schools.command
@@ -157,11 +157,11 @@ def seed(obj: SearchContext, name: str):
     index.save_objects(records).wait()
 
 
-def write_csv(df: pl.DataFrame, path: str):
+def write_csv(df: pl.DataFrame, path: str, header: bool = True):
     if path == "-":
-        print(df.write_csv(quote_style="always"))
+        print(df.write_csv(quote_style="always", include_header=header))
     else:
-        df.write_csv(path, quote_style="always")
+        df.write_csv(path, quote_style="always", include_header=header)
 
 
 if __name__ == "__main__":
