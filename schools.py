@@ -1,5 +1,5 @@
+import json
 from dataclasses import dataclass
-from typing import Sequence
 from uuid import uuid4
 
 import click
@@ -74,17 +74,13 @@ def add(
     """
     Add a new school
     """
-
-    def quote(values: Sequence[str]) -> str:
-        return "{" + ",".join(f'"{value}"' for value in values) + "}"
-
     new = pl.DataFrame(
         [
             {
                 "id": str(uuid4()),
                 "name": name,
-                "abbreviations": quote(abbreviations),
-                "alternatives": quote(alternatives),
+                "abbreviations": json.dumps(abbreviations, separators=(",", ":")),
+                "alternatives": json.dumps(alternatives, separators=(",", ":")),
             }
         ],
     )
