@@ -150,14 +150,8 @@ def seed(obj: SearchContext, name: str):
     records = (
         obj.schools.rename({"id": "objectID"})
         .with_columns(
-            pl.col("abbreviations")
-            .str.replace("\\{", "[")
-            .str.replace("\\}", "]")
-            .str.json_decode(dtype=pl.List(str)),
-            pl.col("alternatives")
-            .str.replace("\\{", "[")
-            .str.replace("\\}", "]")
-            .str.json_decode(dtype=pl.List(str)),
+            pl.col("abbreviations").str.json_decode(dtype=pl.List(str)),
+            pl.col("alternatives").str.json_decode(dtype=pl.List(str)),
         )
         .collect()
         .to_dicts()
