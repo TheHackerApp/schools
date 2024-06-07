@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Sequence
+from uuid import uuid4
 
 import click
 import polars as pl
@@ -33,10 +35,62 @@ def for_database(obj: pl.LazyFrame, output: str):
     """
     df = obj.select("id", "name").collect()
 
-    if output == "-":
-        print(df.write_csv(quote_style="always"))
-    else:
-        df.write_csv(output, quote_style="always")
+    write_csv(df, output)
+
+
+@schools.command
+@click.argument("name", type=str)
+@click.option(
+    "--abbreviation",
+    "-a",
+    "abbreviations",
+    type=str,
+    multiple=True,
+    help="Common abbreviations for the school",
+)
+@click.option(
+    "--alternative",
+    "-l",
+    "alternatives",
+    type=str,
+    multiple=True,
+    help="Alternate names for the school",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(allow_dash=True),
+    help="The output file",
+    default="schools.csv",
+)
+@click.pass_obj
+def add(
+    obj: pl.LazyFrame,
+    name: str,
+    abbreviations: list[str],
+    alternatives: list[str],
+    output: str,
+):
+    """
+    Add a new school
+    """
+
+    def quote(values: Sequence[str]) -> str:
+        return "{" + ",".join(f'"{value}"' for value in values) + "}"
+
+    new = pl.DataFrame(
+        [
+            {
+                "id": str(uuid4()),
+                "name": name,
+                "abbreviations": quote(abbreviations),
+                "alternatives": quote(alternatives),
+            }
+        ],
+    )
+    df = obj.collect().extend(new)
+
+    write_csv(df, output)
 
 
 @dataclass
@@ -111,6 +165,13 @@ def seed(obj: SearchContext, name: str):
 
     index = obj.client.init_index(name)
     index.save_objects(records).wait()
+
+
+def write_csv(df: pl.DataFrame, path: str):
+    if path == "-":
+        print(df.write_csv(quote_style="always"))
+    else:
+        df.write_csv(path, quote_style="always")
 
 
 if __name__ == "__main__":
