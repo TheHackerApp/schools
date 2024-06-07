@@ -83,7 +83,7 @@ def initialize(obj: SearchContext, name: str):
             "hitsPerPage": 5,
             "paginationLimitedTo": 50,
         }
-    )
+    ).wait()
 
 
 @search.command
@@ -110,7 +110,7 @@ def seed(obj: SearchContext, name: str):
     )
 
     index = obj.client.init_index(name)
-    index.save_objects(records)
+    index.save_objects(records).wait()
 
 
 if __name__ == "__main__":
